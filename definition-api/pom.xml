@@ -181,7 +181,8 @@
 	</dependencies>
 
 	<build>
-		<finalName>${project.artifactId}</finalName>
+		<finalName>definition-api</finalName>
+
 		<plugins>
 			<!-- Spring Boot Maven Plugin -->
 			<plugin>

@@ -1,0 +1,10 @@
+**/target
+**/.git
+**/.idea
+**/.settings
+**/.classpath
+**/.project
+**/.DS_Store
+
+README.md
+docs

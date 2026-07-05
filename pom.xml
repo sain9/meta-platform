@@ -41,7 +41,7 @@
         <spring-cloud.version>2025.0.0</spring-cloud.version>
 
         <!-- Shared Library Versions -->
-        <lombok.version>1.18.38</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <jooq.version>3.18.7</jooq.version>
         <flyway.version>9.22.3</flyway.version>
