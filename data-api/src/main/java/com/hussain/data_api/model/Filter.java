@@ -16,10 +16,13 @@ public class Filter {
     private Operator operator;
     private Object value;
     private LogicalOperator logicalOperator;
+
+    private SubqueryRef subquery;    // for IN(subquery), EXISTS, NOT_EXISTS
+    private String rightColumn;      // for column-to-column comparisons
     
     public enum Operator {
         EQ, NEQ, GT, GTE, LT, LTE, LIKE, ILIKE, IN, NOT_IN, IS_NULL, IS_NOT_NULL,
-        BETWEEN, CONTAINS, STARTS_WITH, ENDS_WITH
+        BETWEEN, CONTAINS, STARTS_WITH, ENDS_WITH,  EXISTS, NOT_EXISTS
     }
     
     public enum LogicalOperator {

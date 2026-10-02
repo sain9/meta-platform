@@ -24,6 +24,11 @@ public class DataRequest {
     private List<Having> having;
     private Integer limit;
     private Integer offset;
+
+    private FromClause from;
+    private List<JoinClause> joins;
+    private FilterGroup filterGroup;
+
     private Map<String, Object> data; // For CREATE/UPDATE operations
 
     public enum Operation {

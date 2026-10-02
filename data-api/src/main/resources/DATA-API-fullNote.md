@@ -866,3 +866,145 @@ SELECT name, partowner, quantity FROM parts WHERE partowner = 'System User'
     ('Lightweight Nut', 'David Brown', 'Lightweight nut for precision work', 300),
     ('Super Widget', 'John Doe', 'Super quality widget', 75),
     ('Mini Widget', 'Alice Smith', 'Mini widget for small applications', 25);
+
+
+
+
+## JOINS , SUBQUERY, nested Subquery
+
+curl -X POST http://localhost:9995/api/data/execute \
+-H "Content-Type: application/json" \
+-d '{
+"operation": "READ",
+"from": { "entity": "public.part", "alias": "A0" },
+"columns": [
+"A0.short_part_number", "A0.ecc", "A0.name",
+"A0.brand_minor", "A0.uuid", "A1.part_number"
+],
+"joins": [{
+"type": "LEFT",
+"alias": "A1",
+"subquery": {
+"query": {
+"operation": "READ",
+"from": { "entity": "public.dn_pricing" },
+"columns": ["part_number"],
+"filterGroup": {
+"logicalOperator": "OR",
+"groups": [{
+"logicalOperator": "AND",
+"filters": [
+{ "column": "uuid",   "operator": "IS_NOT_NULL" },
+{ "column": "region", "operator": "NOT_IN", "value": [20, 23, 6] }
+]
+}],
+"filters": [{ "column": "region", "operator": "IS_NULL" }]
+}
+}
+},
+"on": [{ "left": "A1.part_number", "operator": "EQ", "right": "A0.code" }]
+}],
+"filters": [
+{ "column": "A0.short_part_number", "operator": "IS_NOT_NULL", "logicalOperator": "AND" },
+{ "column": "A0.ecc",               "operator": "IS_NOT_NULL", "logicalOperator": "AND" },
+{ "column": "A0.saleable",          "operator": "IS_NOT_NULL", "logicalOperator": "AND" },
+{ "column": "A0.saleable",          "operator": "NEQ",         "value": "N", "logicalOperator": "AND" },
+{ "column": "A0.segment",           "operator": "IS_NULL",     "logicalOperator": "AND" },
+{ "column": "A1.part_number",       "operator": "IS_NULL",     "logicalOperator": "AND" }
+]
+}'
+
+expected output:
+
+SELECT A0.short_part_number, A0.ecc, A0.name, A0.brand_minor, A0.uuid, A1.part_number
+FROM public.part A0
+LEFT JOIN (
+SELECT part_number FROM public.dn_pricing
+WHERE (uuid IS NOT NULL AND region NOT IN (20, 23, 6)) OR region IS NULL
+) A1 ON A1.part_number = A0.code
+WHERE A0.short_part_number IS NOT NULL
+AND A0.ecc IS NOT NULL
+AND A0.saleable IS NOT NULL
+AND A0.saleable <> 'N'
+AND A0.segment IS NULL
+AND A1.part_number IS NULL
+
+
+curl -X POST http://localhost:9995/api/data/execute \
+-H "Content-Type: application/json" \
+-d '{
+"operation": "READ",
+"from": { "entity": "parts", "alias": "p" },
+"joins": [{
+"type": "LEFT",
+"entity": "suppliers",
+"alias": "s",
+"on": [{ "left": "s.part_name", "operator": "EQ", "right": "p.name" }]
+}],
+"columns": ["p.name"],
+"filters": [
+{ "column": "s.part_name", "operator": "IS_NULL" }
+]
+}'
+
+SELECT p.name
+FROM parts p
+LEFT JOIN suppliers s ON s.part_name = p.name
+WHERE s.part_name IS NULL
+
+
+curl -X POST http://localhost:9995/api/data/execute \
+-H "Content-Type: application/json" \
+-d '{
+"operation": "READ",
+"from": { "entity": "parts", "alias": "p" },
+"columns": ["p.name"],
+"filters": [{
+"column": "p.name",
+"operator": "IN",
+"subquery": {
+"query": {
+"operation": "READ",
+"from": { "entity": "suppliers", "alias": "s" },
+"columns": ["s.part_name"],
+"filters": [{
+"column": "s.part_name",
+"operator": "IN",
+"subquery": {
+"query": {
+"operation": "READ",
+"from": { "entity": "orders", "alias": "o" },
+"columns": ["o.part_name"],
+"filters": [{
+"column": "o.part_name",
+"operator": "IN",
+"subquery": {
+"query": {
+"operation": "READ",
+"from": { "entity": "inventory" },
+"columns": ["part_name"],
+"filters": [{ "column": "stock", "operator": "GT", "value": 100 }]
+}
+}
+}]
+}
+}
+}]
+}
+}
+}]
+}'
+
+expected output:
+SELECT p.name
+FROM parts p
+WHERE p.name IN (
+SELECT s.part_name FROM suppliers s
+WHERE s.part_name IN (
+SELECT o.part_name FROM orders o
+WHERE o.part_name IN (
+SELECT part_name FROM inventory WHERE stock > 100
+)
+)
+)
+
