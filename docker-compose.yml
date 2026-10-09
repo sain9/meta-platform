@@ -11,6 +11,8 @@ services:
       - data-api
       - definition-api
       - user-access-api
+    networks:
+      - meta-platform-net
 
   data-api:
     build:
@@ -19,6 +21,8 @@ services:
     container_name: data-api
     ports:
       - "9995:9995"
+    networks:
+      - meta-platform-net
 
   definition-api:
     build:
@@ -27,6 +31,8 @@ services:
     container_name: definition-api
     ports:
       - "9996:9996"
+    networks:
+      - meta-platform-net
 
   user-access-api:
     build:
@@ -35,3 +41,10 @@ services:
     container_name: user-access-api
     ports:
       - "9997:9997"
+    networks:
+      - meta-platform-net
+
+networks:
+  meta-platform-net:
+    external: true
+    name: meta-platform-net

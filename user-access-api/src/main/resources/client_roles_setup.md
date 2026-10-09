@@ -4,6 +4,7 @@
  then --> Filter by clients
  then --> search by role names
 
+Assign roles
  query-users
  query-groups
  view-users
@@ -11,3 +12,6 @@
  create-client
  manage-users
  manage-realm
+
+
+ 
