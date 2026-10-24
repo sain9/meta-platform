@@ -6,6 +6,9 @@
 ## step 2 (generate client id and client_secret)
 > cd docs/keycloak_setup
 > ./setup-keycloak.sh
+(or for mac)
+> bash ./setup-keycloak.sh
+
 
 Now copy the client_secret and paste it in the application.properties of user-access-api
 ------------------------------------------------
