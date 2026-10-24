@@ -19,3 +19,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Keycloak Logs
+docs/keycloak_setup/logs/
