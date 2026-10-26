@@ -1,0 +1,319 @@
+syntax = "proto3";
+
+package com.hussain.data_api.grpc.proto;
+
+import "google/protobuf/wrappers.proto";
+
+option java_package = "com.hussain.data_api.grpc.proto";
+option java_multiple_files = true;
+option java_outer_classname = "DataApiProto";
+
+// =========================================================================
+// Service definition
+// =========================================================================
+service DataApiService {
+  // Single-operation execute (READ / CREATE / UPDATE / DELETE / BULK_*).
+  rpc Execute(DataRequest) returns (DataResponse);
+
+  // Batch execute — a list of DataRequest, executed transactionally.
+  rpc BatchExecute(BatchExecuteRequest) returns (BatchExecuteResponse);
+
+  // Lightweight health/info — useful for gateways, not a replacement for
+  // the standard grpc.health.v1.Health service.
+  rpc Info(InfoRequest) returns (InfoResponse);
+}
+
+// =========================================================================
+// Top-level request / response
+// =========================================================================
+message DataRequest {
+  Operation operation = 1;          // required
+  string entity = 2;                // optional if `from` is set
+  repeated string columns = 3;
+  repeated Filter filters = 4;
+  repeated OrderBy order_by = 5;
+  repeated GroupBy group_by = 6;
+  repeated Having having = 7;
+  google.protobuf.Int32Value limit = 8;   // nullable
+  google.protobuf.Int32Value offset = 9;  // nullable
+  FromClause from = 10;             // optional
+  repeated JoinClause joins = 11;   // optional
+  FilterGroup filter_group = 12;    // optional
+  map<string, Value> data = 13;     // for CREATE / UPDATE / BULK_*
+  string bulk_key_column = 14;
+  reserved 100 to 199;
+}
+
+enum Operation {
+  OPERATION_UNSPECIFIED = 0;
+  READ = 1;
+  CREATE = 2;
+  UPDATE = 3;
+  DELETE = 4;
+  BULK_CREATE = 5;
+  BULK_UPDATE = 6;
+  BULK_DELETE = 7;
+}
+
+// =========================================================================
+// FROM
+// =========================================================================
+message FromClause {
+  string entity = 1;      // either entity
+  SubqueryRef subquery = 2; // or subquery
+  string alias = 3;       // required if subquery is set
+  reserved 100 to 199;
+}
+
+// =========================================================================
+// JOIN
+// =========================================================================
+message JoinClause {
+  JoinType type = 1;
+  string entity = 2;
+  SubqueryRef subquery = 3;
+  string alias = 4;
+  repeated JoinCondition on = 5;
+  reserved 100 to 199;
+}
+
+enum JoinType {
+  JOIN_TYPE_UNSPECIFIED = 0;
+  INNER = 1;
+  LEFT = 2;
+  RIGHT = 3;
+  FULL = 4;
+  CROSS = 5;
+}
+
+message JoinCondition {
+  string left = 1;
+  FilterOperator operator = 2;
+  string right = 3;
+  Value value = 4;
+  LogicalOperator logical_operator = 5;
+  reserved 100 to 199;
+}
+
+// =========================================================================
+// FILTER
+// =========================================================================
+message Filter {
+  string column = 1;
+  FilterOperator operator = 2;
+  Value value = 3;
+  LogicalOperator logical_operator = 4;
+  SubqueryRef subquery = 5;   // used for IN(subquery), EXISTS, NOT_EXISTS
+  string right_column = 6;    // column-to-column comparison
+  reserved 100 to 199;
+}
+
+enum FilterOperator {
+  FILTER_OPERATOR_UNSPECIFIED = 0;
+  EQ = 1;
+  NEQ = 2;
+  GT = 3;
+  GTE = 4;
+  LT = 5;
+  LTE = 6;
+  LIKE = 7;
+  ILIKE = 8;
+  IN = 9;
+  NOT_IN = 10;
+  IS_NULL = 11;
+  IS_NOT_NULL = 12;
+  BETWEEN = 13;
+  CONTAINS = 14;
+  STARTS_WITH = 15;
+  ENDS_WITH = 16;
+  EXISTS = 17;
+  NOT_EXISTS = 18;
+}
+
+// =========================================================================
+// FILTER GROUP (nested AND/OR)
+// =========================================================================
+message FilterGroup {
+  LogicalOperator logical_operator = 1;
+  repeated Filter filters = 2;
+  repeated FilterGroup groups = 3;
+  reserved 100 to 199;
+}
+
+enum LogicalOperator {
+  LOGICAL_OPERATOR_UNSPECIFIED = 0;
+  AND = 1;
+  OR = 2;
+}
+
+// =========================================================================
+// SUBQUERY
+// =========================================================================
+message SubqueryRef {
+  DataRequest query = 1;
+  string alias = 2;
+  reserved 100 to 199;
+}
+
+// =========================================================================
+// ORDER BY
+// =========================================================================
+message OrderBy {
+  string column = 1;
+  Direction direction = 2;
+  reserved 100 to 199;
+}
+
+enum Direction {
+  DIRECTION_UNSPECIFIED = 0;
+  ASC = 1;
+  DESC = 2;
+}
+
+// =========================================================================
+// GROUP BY
+// =========================================================================
+message GroupBy {
+  string column = 1;
+  string alias = 2;
+  GroupByType type = 3;
+  string format = 4;
+  reserved 100 to 199;
+}
+
+enum GroupByType {
+  GROUP_BY_TYPE_UNSPECIFIED = 0;
+  NORMAL = 1;
+  YEAR = 2;
+  MONTH = 3;
+  DAY = 4;
+  HOUR = 5;
+  WEEK = 6;
+  QUARTER = 7;
+  DATE_TRUNC = 8;
+}
+
+// =========================================================================
+// HAVING
+// =========================================================================
+message Having {
+  string column = 1;
+  AggregateFunction aggregate = 2;
+  HavingOperator operator = 3;
+  Value value = 4;
+  LogicalOperator logical_operator = 5;
+  reserved 100 to 199;
+}
+
+enum AggregateFunction {
+  AGGREGATE_FUNCTION_UNSPECIFIED = 0;
+  COUNT = 1;
+  SUM = 2;
+  AVG = 3;
+  MIN = 4;
+  MAX = 5;
+  COUNT_DISTINCT = 6;
+}
+
+enum HavingOperator {
+  HAVING_OPERATOR_UNSPECIFIED = 0;
+  HAVING_EQ = 1;
+  HAVING_NEQ = 2;
+  HAVING_GT = 3;
+  HAVING_GTE = 4;
+  HAVING_LT = 5;
+  HAVING_LTE = 6;
+  HAVING_LIKE = 7;
+  HAVING_IN = 8;
+  HAVING_NOT_IN = 9;
+  HAVING_IS_NULL = 10;
+  HAVING_IS_NOT_NULL = 11;
+  HAVING_BETWEEN = 12;
+  HAVING_CONTAINS = 13;
+  HAVING_STARTS_WITH = 14;
+  HAVING_ENDS_WITH = 15;
+}
+
+// =========================================================================
+// Polymorphic VALUE  — represents Java's `Object value`
+// =========================================================================
+// Choose exactly one branch. `null_value` lets us carry an explicit JSON null.
+message Value {
+  oneof kind {
+    bool null_value = 1;     // always true if set; represents an explicit null
+    string string_value = 2;
+    int64 int_value = 3;     // long
+    double double_value = 4;
+    bool bool_value = 5;
+    bytes bytes_value = 6;
+    ListValue list_value = 7;  // for IN / NOT_IN / BETWEEN
+    MapValue map_value = 8;    // structured object / result row
+  }
+}
+
+message ListValue {
+  repeated Value values = 1;
+}
+
+// NEW: a structured object — used for result rows and nested maps.
+message MapValue {
+  map<string, Value> fields = 1;
+}
+
+
+// =========================================================================
+// Response envelope
+// =========================================================================
+message DataResponse {
+  bool success = 1;
+  string message = 2;
+  Value data = 3;            // JSON-like payload (list of row-maps, or map)
+  Pagination pagination = 4;
+  repeated ValidationError errors = 5;
+  reserved 100 to 199;
+}
+
+message Pagination {
+  int32 limit = 1;
+  int32 offset = 2;
+  int64 total_count = 3;
+  int32 total_pages = 4;
+  reserved 100 to 199;
+}
+
+message ValidationError {
+  string field = 1;
+  string message = 2;
+  Value rejected_value = 3;
+  reserved 100 to 199;
+}
+
+// =========================================================================
+// Batch
+// =========================================================================
+message BatchExecuteRequest {
+  repeated DataRequest requests = 1;
+  reserved 100 to 199;
+}
+
+message BatchExecuteResponse {
+  bool success = 1;
+  string message = 2;
+  repeated DataResponse results = 3;
+  reserved 100 to 199;
+}
+
+// =========================================================================
+// Info
+// =========================================================================
+message InfoRequest {
+  reserved 100 to 199;
+}
+
+message InfoResponse {
+  string service = 1;
+  string version = 2;
+  string status = 3;
+  int64 uptime_seconds = 4;
+  reserved 100 to 199;
+}

@@ -204,6 +204,13 @@ public class DynamicQueryBuilder {
 
     private int executeBulkUpdate(DataRequest request) {
         String entity = request.getEntity();
+
+        // Which column identifies the row to update? Caller may set bulkKeyColumn
+        // on the request (e.g. "uuid"); otherwise fall back to legacy behaviour "id".
+        String keyColumn = request.getBulkKeyColumn() != null && !request.getBulkKeyColumn().isBlank()
+                ? request.getBulkKeyColumn()
+                : "id";
+
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> dataList = (List<Map<String, Object>>) request.getData().get("items");
 
@@ -212,9 +219,11 @@ public class DynamicQueryBuilder {
         List<Query> queries = new ArrayList<>();
         for (Map<String, Object> item : dataList) {
             Map<String, Object> updateData = new HashMap<>(item);
-            Object id = updateData.remove("id");
-            if (id == null) {
-                throw new IllegalArgumentException("'id' is required for bulk update");
+            Object keyValue = updateData.remove(keyColumn);
+            if (keyValue == null) {
+                throw new IllegalArgumentException(
+                        "'" + keyColumn + "' is required for bulk update, else provide bulkKeyColumn, e.g: \n \"bulkKeyColumn\": \"uuid\",\n" +
+                                " \"data\": {");
             }
 
             List<String> setClauses = new ArrayList<>();
@@ -234,7 +243,7 @@ public class DynamicQueryBuilder {
 
             String sql = "UPDATE " + entity +
                     " SET " + String.join(", ", setClauses) +
-                    " WHERE id = " + id;
+                    " WHERE " + keyColumn + " = " + literal(keyValue);
             queries.add(dslContext.query(sql));
         }
         return batchQuery.executeBatch(queries);

@@ -778,6 +778,41 @@ Here are all the possible curl requests with the jOOQ SQL that will be formed fo
     UPDATE parts SET quantity = 350, description = 'Bulk updated - Premium' WHERE name = 'Premium Widget';
     (Executed as a batch)
 
+# Note bulk update ,updates column on the basis of column "id", if id column is
+# is not present then provide bulkKeyColumn as following: 
+
+grpcurl -plaintext -d '{
+"operation": "BULK_UPDATE",
+"entity": "dn_pricing",
+"bulkKeyColumn": "uuid",
+"data": {
+"items": { "listValue": { "values": [
+{ "mapValue": { "fields": {
+"uuid":  {"stringValue": "11111111-1111-1111-1111-111111111111"},
+"price": {"doubleValue": 111}
+}}},
+{ "mapValue": { "fields": {
+"uuid":  {"stringValue": "22222222-2222-2222-2222-222222222222"},
+"price": {"doubleValue": 222}
+}}}
+]}}
+}
+}' localhost:9003 com.hussain.data_api.grpc.proto.DataApiService/Execute
+{
+"success": true,
+"message": "Operation completed successfully",
+"data": {
+"map_value": {
+"fields": {
+"affectedRows": {
+"int_value": "4"
+}
+}
+}
+}
+}
+
+
 38. BULK DELETE - Multiple IDs
     Curl Command:
     bash

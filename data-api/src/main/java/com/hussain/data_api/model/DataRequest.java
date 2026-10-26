@@ -24,6 +24,7 @@ public class DataRequest {
     private List<Having> having;
     private Integer limit;
     private Integer offset;
+    private String bulkKeyColumn;   // used by BULK_UPDATE; defaults to "id" in the builder
 
     private FromClause from;
     private List<JoinClause> joins;

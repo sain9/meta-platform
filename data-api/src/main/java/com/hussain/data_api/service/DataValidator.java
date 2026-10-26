@@ -29,6 +29,7 @@ public class DataValidator {
         }
         if (request.getOperation() == null) {
             errors.add("Operation is required");
+            return;
         }
 
         boolean hasEntity = StringUtils.hasText(request.getEntity());
