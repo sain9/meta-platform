@@ -20,5 +20,14 @@ Thumbs.db
 # Logs
 *.log
 
+.DS_Store
+**/.DS_Store
+
 # Keycloak Logs
 docs/keycloak_setup/logs/
+
+
+target/
+*.class
+*.jar
+**/target/
