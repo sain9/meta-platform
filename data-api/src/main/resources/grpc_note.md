@@ -46,6 +46,7 @@ grpcurl -plaintext -d '{
 "columns": ["uuid","part_number","price"]
 }' localhost:9003 com.hussain.data_api.grpc.proto.DataApiService/Execute
 
+## sample grpc api call
 grpcurl -plaintext -d '{
 "operation": "BULK_UPDATE",
 "entity": "dn_pricing",
@@ -64,7 +65,9 @@ grpcurl -plaintext -d '{
 }
 }' localhost:9003 com.hussain.data_api.grpc.proto.DataApiService/Execute
 
+-----------------------------------------------------------------
 1. CREATE — Insert a part
+
    grpcurl -plaintext -d '{
    "operation": "CREATE",
    "entity": "part",
@@ -82,6 +85,7 @@ grpcurl -plaintext -d '{
 
 
 2. READ — Fetch parts by IDs using IN
+
    grpcurl -plaintext -d '{
    "operation": "READ",
    "entity": "part",
@@ -104,6 +108,7 @@ grpcurl -plaintext -d '{
 
 
 3. READ — Fetch one part by ID
+
    grpcurl -plaintext -d '{
    "operation": "READ",
    "entity": "part",
@@ -119,6 +124,7 @@ grpcurl -plaintext -d '{
 
 
 4. READ — Fetch pricing by UUID
+
    grpcurl -plaintext -d '{
    "operation": "READ",
    "entity": "dn_pricing",
@@ -136,6 +142,7 @@ grpcurl -plaintext -d '{
 
 
 5. BULK_UPDATE — Update two parts
+
    grpcurl -plaintext -d '{
    "operation": "BULK_UPDATE",
    "entity": "part",
@@ -167,6 +174,7 @@ grpcurl -plaintext -d '{
 
 
 6. BULK_UPDATE — Update one part by ID
+
    grpcurl -plaintext -d '{
    "operation": "BULK_UPDATE",
    "entity": "part",
@@ -189,7 +197,8 @@ grpcurl -plaintext -d '{
    }' localhost:9003 com.hussain.data_api.grpc.proto.DataApiService/Execute
 
 7. BULK_UPDATE — Update a part without an ID
-   This is the test from history entry 974. It omits the ID, making it useful for checking your API's validation behavior.
+   It omits the ID, making it useful for checking your API's validation behavior.
+
    grpcurl -plaintext -d '{
    "operation": "BULK_UPDATE",
    "entity": "part",
@@ -212,7 +221,7 @@ grpcurl -plaintext -d '{
 
 
 8. BULK_UPDATE — Update pricing without bulkKeyColumn
-   This request appears four times in your history (966–969) and again at 975.
+
    grpcurl -plaintext -d '{
    "operation": "BULK_UPDATE",
    "entity": "dn_pricing",
@@ -236,7 +245,8 @@ grpcurl -plaintext -d '{
 
 
 9. BULK_UPDATE — Update pricing with bulkKeyColumn
-   This is the version from history entry 976, explicitly specifying uuid as the bulk matching key.
+   explicitly specifying uuid as the bulk matching key.
+
    grpcurl -plaintext -d '{
    "operation": "BULK_UPDATE",
    "entity": "dn_pricing",
