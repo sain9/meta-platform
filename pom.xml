@@ -136,17 +136,15 @@
     <!-- ========================================================= -->
 
     <modules>
+        <!-- Shared libraries -->
+        <module>data-api-proto</module>
+        <module>data-api-client</module>
 
-        <module>gateway-api</module>
+        <!-- Runnable microservices -->
         <module>data-api</module>
         <module>definition-api</module>
         <module>user-access-api</module>
-
-        <!-- Future Services -->
-        <!-- <module>notification-api</module> -->
-        <!-- <module>scheduler-api</module> -->
-        <!-- <module>audit-api</module> -->
-
+        <module>gateway-api</module>
     </modules>
 
 </project>

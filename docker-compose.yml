@@ -20,7 +20,8 @@ services:
       dockerfile: data-api/Dockerfile
     container_name: data-api
     ports:
-      - "9995:9995"
+      - "9995:9995"     # REST
+      - "9003:9003"     # gRPC — NEW
     networks:
       - meta-platform-net
 

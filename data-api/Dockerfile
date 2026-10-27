@@ -15,5 +15,6 @@ WORKDIR /app
 COPY --from=builder /workspace/data-api/target/data-api.jar app.jar
 
 EXPOSE 9995
+EXPOSE 9003
 
 ENTRYPOINT ["java","-jar","app.jar"]

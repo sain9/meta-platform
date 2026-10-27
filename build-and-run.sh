@@ -1,6 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -Eeuo pipefail
+
+# Navigate to the repository root
+cd "$(dirname "$0")"
 
 echo "========================================"
 echo "Stopping existing containers..."
@@ -9,37 +12,41 @@ docker compose down
 
 echo
 echo "========================================"
-echo "Removing dangling build cache..."
+echo "Removing dangling Docker build cache..."
 echo "========================================"
 docker builder prune -f
 
 echo
 echo "========================================"
-echo "Cleaning Maven build..."
+echo "Cleaning and installing all Maven projects..."
 echo "========================================"
-mvn clean
+
+# Clean and install the root project and all six modules.
+# Maven automatically resolves dependency order.
+mvn -B clean install -DskipTests
 
 echo
 echo "========================================"
-echo "Building all microservices..."
+echo "Building Docker images without cache..."
 echo "========================================"
-mvn clean install -DskipTests
 
-echo
-echo "========================================"
-echo "Building Docker images..."
-echo "========================================"
 docker compose build --no-cache
 
 echo
 echo "========================================"
 echo "Starting Meta Platform..."
 echo "========================================"
+
 docker compose up -d
 
 echo
 echo "========================================"
-echo "Done!"
+echo "Running containers..."
 echo "========================================"
 
-docker ps
+docker compose ps
+
+echo
+echo "========================================"
+echo "Build and deployment completed!"
+echo "========================================"
