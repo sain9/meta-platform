@@ -1,21 +1,42 @@
-1- build data-api-proto
-2- build data-api           (uses same above data-api-proto jar)
-3- build data-api-client    (uses same above data-api-proto jar)
+# Startup Guide
 
-## check test/java/com.hussain.data_api_client
+## Build Order
 
-ClientSpringContextTest
-ClientSmokeTest
+1.  Build `data-api-proto`
+2.  Build `data-api` (uses `data-api-proto`)
+3.  Build `data-api-client` (uses `data-api-proto`)
 
-set entity and columns that are actually present in db
-in either of the above test files
+## Running Tests
 
-then run:
+Navigate to the test directory to inspect the available unit tests:
 
-> mvn clean test -Dtest=ClientSpringContextTest
-                  or
-> mvn test -Dtest=ClientSmokeTest
+```bash
+check test/java/com.hussain.data_api_client
+```
 
-should see
+Two test classes are available:
+*   `ClientSpringContextTest`
+*   `ClientSmokeTest`
+
+### Configure Tests
+
+Ensure the entity and columns you use in the tests actually exist in your database.
+
+### Run Tests
+
+Execute either test class:
+
+```bash
+# Run Spring Context Test
+mvn clean test -Dtest=ClientSpringContextTest
+
+# OR Run Smoke Test
+mvn test -Dtest=ClientSmokeTest
+```
+
+### Expected Output
+
+```
 Service/Execute OK in 212ms
-AUTO-CONFIG OK: {id=d14cfb36-0bfe-4f1e-84d0-b32e37f4147d, entity_definition= ...
+AUTO-CONFIG OK: {id=d14cfb36-0bfe-4f1e-84d0-b32e37f4147d, entity_definition= ...}
+```

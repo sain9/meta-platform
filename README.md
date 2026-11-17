@@ -1,20 +1,25 @@
-# Meta Platform
+# Meta Platform: Enterprise AI-driven Metadata Platform
 
-Enterprise AI-driven metadata platform.
+This repository is the parent workspace for all platform components, including:
 
-## Services
+*   **Gateway API:** Runs on port `9999`
+*   **User Access API:** Runs on port `9997`
+*   **Data API:** Runs on port `9995`
+*   **Definition API:** Runs on port `9996`
 
-- Gateway API : 9999
-- User Access API : 9997
-- Data API : 9995
-- Definition API : 9996
+## Future Services
+The platform is designed to scale to include:
+*   AI Data Service
+*   AI Definition Service
+*   Notification API
+*   Workflow API
+*   Audit API
 
-Future Services
+## Repository Structure
+This monorepo organizes services by their primary function for clear separation of concerns.
 
-- AI Data Service
-- AI Definition Service
-- Notification API
-- Workflow API
-- Audit API
+## Getting Started
+1.  Use `./build-and-run.sh` for a full platform startup.
+2.  Use `docker compose up -d --build <service-name>` to run individual services (e.g., `data-api`).
 
-This repository serves as the parent workspace for all platform components.
+**Note:** All services communicate via their designated internal ports. Check the specific service documentation for operational details.
